@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<script src="guy.js"></script>
+<script src="howler.min.js"></script>
+<style>
+    html,body {width:100%;height:100%;overflow:auto;padding:0px;margin:0px;font-family:Helvetica, sans-serif}
+
+    :focus {outline:none;}
+
+    *:not(input):not(textarea):not(.copy) {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      -webkit-tap-highlight-color: transparent; /* For some Androids */
+
+      outline-style:none;
+    }
+</style>
+<template id="tmpl">
+    <style> div {
+        background: radial-gradient(white, #9198e5);
+        position:fixed;
+        width:100px;
+        height:100px;
+        border: none;
+        border-radius:100px;
+        cursor:pointer;
+    } </style>
+    <div></div>
+</template>
+
+<template id="main">
+    <style>
+    * {font-size:30px;text-align:center}
+    div#root {
+        width:100%;
+        height:100%;
+        display:flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        justify-content: center;
+    }
+    button {
+        display:block;
+        width:150px;
+        background:#F88;
+        border:None;
+        margin:10px;
+        cursor: pointer;
+    }
+    </style>
+    <div id="root">
+        <div>
+            <p></p>
+            <button onclick='g.restart();event.stopPropagation()'>Start</button>
+            <button onclick='self.exit();event.stopPropagation()'>Exit</button>
+            <i></i>
+        </div>
+    </div>
+</template>
+
+</head>
+<body>
+
+</body>
+
+
+
+<script>
+function random(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min;}
+
+class TF extends HTMLElement {
+
+  connectedCallback() {
+    this.attachShadow({mode: 'open'}).append(tmpl.content.cloneNode(true));
+    this.p=this.shadowRoot.querySelector("div")
+    this.p.addEventListener('click', this.kill.bind(this) );
+    this.p.addEventListener('touchstart', this.kill.bind(this) );
+    this.p.style.top=random(0,document.body.clientHeight-100)+"px"
+    this.p.style.left=random(0,document.body.clientWidth-100)+"px"
+  }
+
+  kill(event) {
+      if(event && event.touches && event.touches.length>1) return;
+
+      this.p.parentNode.removeChild(this.p);
+      event.preventDefault()
+      event.stopPropagation()
+      document.dispatchEvent( new CustomEvent('kill-bubble',{ detail: null} ) );
+  }
+}
+
+
+class Game {
+    constructor() {
+        customElements.define("my-c", TF);
+        this.sndPlop = new Howl({src: ['plop.mp3']});
+        this.sndBad = new Howl({src: ['death.mp3']});
+        this.sndWin = new Howl({src: ['win.mp3']});
+
+        document.addEventListener('kill-bubble', x=>{
+            this.sndPlop.play()
+            this.cpt-=1;
+            if(this.cpt<1)
+                this.end()
+        })
+        document.addEventListener("touchstart", this.handler.bind(this)); // block zoom
+        document.addEventListener("click", this.handler.bind(this))
+    }
+
+    handler(e) {
+        this.end()
+        e.preventDefault();
+    }
+
+
+    restart() {
+        this.cpt=100;
+        document.body.innerHTML="";
+        for(var i=0;i<this.cpt;i++)
+            document.body.appendChild( new TF() )
+        this.t1=new Date();
+    }
+
+    async start() {
+        this.record=await guy.cfg.record;
+        this.cpt=null;
+        this.end();
+    }
+
+    end() {
+        document.body.innerHTML="";
+        document.body.appendChild(main.content.cloneNode(true));
+        if(this.cpt==null) {
+            document.querySelector("p").innerHTML="Bubble Killer"
+        }
+        else if(this.cpt>0) {
+            this.sndBad.play()
+            document.querySelector("p").innerHTML="Lost ;-)"
+        }
+        else {
+            let score=new Date()-this.t1;
+            this.sndWin.play()
+            if(this.record==null || score<this.record) {
+                this.record=score;
+                guy.cfg.record=score;
+                var info="<br/>(BEST)";
+            }
+            else {
+                var info="";
+            }
+            document.querySelector("p").innerHTML="Score:"+score+info;
+        }
+        if(this.record!=null)
+            document.querySelector("i").innerHTML="Best: "+this.record;
+        this.cpt=null
+    }
+
+
+}
+
+guy.init( ()=>{
+    g=new Game()
+    g.start()
+})
+
+</script>
+</html>
+
+
