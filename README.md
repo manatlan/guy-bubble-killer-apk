@@ -11,3 +11,32 @@ It's a demo, of what you can do with [guy](https://guy-docs.glitch.me/) python l
 The server side is just handling the best score in its guy's config. All is done client side, with html/webcomponent/js/css.
 
 If you want to test yourself ... Just follow the [HowTo](https://guy-docs.glitch.me/howto_build_apk_android/), to try to reproduce the apk.
+
+To start, in an ubuntu console :
+
+Clone this repo
+
+    git clone https://github.com/manatlan/guy-bubble-killer-apk.git
+
+Go in your local repo
+
+    cd guy-bubble-killer-apk
+
+Get a fresh version of guy.py
+
+    rm guy.py && wget https://raw.githubusercontent.com/manatlan/guy/master/guy.py
+
+Test, if it works locally 
+
+    python3 main.py
+
+Install the tools
+
+    sudo apt install python3-kivy
+    python3 -m pip install --upgrade buildozer
+
+Connect your android phone thru usb cable & Test on it
+
+    buildozer android debug deploy run
+
+...
