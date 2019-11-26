@@ -35,7 +35,15 @@ Install the tools
     sudo apt install python3-kivy
     python3 -m pip install --upgrade buildozer
 
-Connect your android phone thru usb cable & Test on it
+Connect your android phone thru usb cable & Test on it (first run could take more than 20 minutes)
+
+    buildozer android debug deploy run
+
+If you got the [`ERR_CLEARTEXT_NOT_PERMITTED`](https://guy-docs.glitch.me/howto_build_apk_android/#authorize-clear-text-traffic-in-your-apk) error on your android, just launch
+
+    sed -i 's/<application android:label/<application android:usesCleartextTraffic="true" android:label/g' .buildozer/android/platform/build/dists/bubblekiller/templates/AndroidManifest.tmpl.xml
+
+And re-run
 
     buildozer android debug deploy run
 
