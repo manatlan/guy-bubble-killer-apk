@@ -7,5 +7,5 @@ It's a little game, with graphics & sound ... you only need to kill all 100 bubb
 
 It's just a demo, of what you can do with [guy](https://guy-docs.glitch.me/) python lib ;-)
 
-!!! info
-    Note that the server side is just handling the best score in its guy's config.
+**Note:**
+The server side is just handling the best score in its guy's config. All is done client side, with html/webcomponent/js/css.
